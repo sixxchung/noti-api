@@ -1,3 +1,4 @@
+# uvicorn app.main:app --reload  
 from dataclasses import asdict
 import uvicorn
 from fastapi import FastAPI
