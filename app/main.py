@@ -3,9 +3,10 @@ import uvicorn
 from fastapi import FastAPI
 
 from typing import Optional
+
 from app.common.config import conf
 from app.database.conn import db
-
+from app.routes import index, auth
 #app = FastAPI()
 def create_app():
     """
@@ -21,7 +22,9 @@ def create_app():
     # Initialize Redis
     # define Middleware
     # define Router
-
+    app.include_router(index.router)
+    app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
+    
     return app
 
 app = create_app()
