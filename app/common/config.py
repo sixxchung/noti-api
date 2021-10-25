@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from os import path, environ
+from os          import path, environ
 
 base_dir = path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
@@ -10,15 +10,13 @@ class Config:
     기본 Configuration  부모클래스
     """
     BASE_DIR= base_dir
-
     DB_POOL_RECYCLE:int = 900
     DB_ECHO:bool = True
 
 @dataclass
 class LocalConfig(Config):
     PROJ_RELOAD: bool = True
-
-    DB_URL:str = "mariadb+pymysql://travis@localhost/notification_api?charset=utf8mb4"
+    DB_URL:str = "mysql+pymysql://travis@localhost/notification_api?charset=utf8mb4"
     TRUSTED_HOSTS=["*"]
     ALLOW_SITE=["*"]
 

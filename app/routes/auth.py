@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
+from app.common.consts import JWT_SECRET, JWT_ALGORITHM
 from app.database.conn import db
+from app.database.schema import Users
 from app.models import SnsType, Token, UserToken, UserRegister
 
 
@@ -27,7 +29,6 @@ import jwt
 """
 
 router = APIRouter()
-
 # @router.post("/register/{sns_type}", status_code=200, response_model=Token)
 # async def register(sns_type:SnsType, reg_info:UserRegister, session:Session=Depends(db.session)):
 #     """
@@ -40,9 +41,13 @@ router = APIRouter()
 #     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
 @router.post("/register/{sns_type}", status_code=200, response_model=Token)
-async def register(sns_type: SnsType, reg_info: UserRegister, session: Session = Depends(db.session)):
+async def register(
+    sns_type: SnsType, 
+    reg_info: UserRegister, 
+    session: Session = Depends(db.session)
+):
     """
-    회원가입 API
+    `회원가입 API` \n
     :param sns_type:
     :param reg_info:
     :param session:
@@ -60,4 +65,16 @@ async def register(sns_type: SnsType, reg_info: UserRegister, session: Session =
         return token
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
+async def is_email_exist(email: str):
+    get_email = Users.get(email=email)
+    if get_email:
+        return True
+    return False
 
+
+def create_access_token(*, data: dict = None, expires_delta: int = None):
+    to_encode = data.copy()
+    if expires_delta:
+        to_encode.update({"exp": datetime.utcnow() + timedelta(hours=expires_delta)})
+    encoded_jwt = jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return encoded_jwt

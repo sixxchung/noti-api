@@ -10,12 +10,13 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
 )
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
 
 from app.database.conn import Base, db
 
 class BaseMixin:
-    id = Column(Integer, primary_key=True, index=True)
+    id         = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, nullable=False, default=func.utc_timestamp())
     updated_at = Column(DateTime, nullable=False, default=func.utc_timestamp(), onupdate=func.utc_timestamp())
 
@@ -50,7 +51,25 @@ class BaseMixin:
         if auto_commit:
             session.commit()
         return obj
-    
+
+    @classmethod
+    def get(cls, **kwargs):
+        """
+        Simply get a Row
+        :param kwargs:
+        :return:
+        """
+        session = next(db.session())
+        query = session.query(cls)
+        for key, val in kwargs.items():
+            col = getattr(cls, key)
+            query = query.filter(col == val)
+
+        if query.count() > 1:
+            raise Exception("Only one row is supposed to be returned, but got more than one.")
+        return query.first()
+
+
 class Users(Base, BaseMixin):
     __tablename__="users"
     status = Column(Enum("active", "deleted", "blocked"), default="active")

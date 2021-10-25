@@ -19,10 +19,11 @@ def create_app():
 
     conf_dict = asdict(c)
     db.init_app(app, **conf_dict)
+
     # Initialize Database
     # Initialize Redis
     # define Middleware
-    # define Router
+    # define Router  (/routes/xxx.py)
     app.include_router(index.router)
     app.include_router(auth.router, tags=["Authentication"], prefix="/auth")
     
@@ -40,4 +41,4 @@ app = create_app()
 
 # uvicorn main:app --reload
 if __name__ == "__main__" :
-    uvicorn.run("main:app",host="0.0.0.0", port=8000, reload=True) # reload=conf().PROJ_RELOAD)
+    uvicorn.run("main:app",host="0.0.0.0", port=6666, reload=True) # reload=conf().PROJ_RELOAD)
