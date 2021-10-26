@@ -11,7 +11,7 @@ from app.models import SnsType, Token, UserToken, UserRegister
 
 
 import bcrypt
-import jwt
+import jwt     #json web tokens
 """
 1. Google  로그인을 위한 구글  앱 준비 (구글 개발자 도구)
 2. Facebook로그인을 위한 FB    앱 준비 (FB 개발자 도구)
@@ -53,18 +53,19 @@ async def register(
     :param session:
     :return:
     """
-    if sns_type == SnsType.email:
+    if sns_type == SnsType.email:  # email
         is_exist = await is_email_exist(reg_info.email)
-        if not reg_info.email or reg_info.pw:
-            return JSONResponse(status_code=400, content=dict(msg="Email and PW must be provided'"))
+        if not reg_info.email or not reg_info.pw:
+            return JSONResponse(status_code=400, content=dict(msg="Email and PW must be provided'")) #Raise error 미들웨어를 자동으로 에러처리 
         if is_exist:
             return JSONResponse(status_code=400, content=dict(msg="EMAIL_EXISTS"))
-        hash_pw = bcrypt.hashpw(reg_info.pw.encode("utf-8"), bcrypt.gensalt())
+        hash_pw  = bcrypt.hashpw(reg_info.pw.encode("utf-8"), bcrypt.gensalt())
         new_user = Users.create(session, auto_commit=True, pw=hash_pw, email=reg_info.email)
         token = dict(Authorization=f"Bearer {create_access_token(data=UserToken.from_orm(new_user).dict(exclude={'pw', 'marketing_agree'}),)}")
         return token
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
+# to util 많이 쓰는 함수 
 async def is_email_exist(email: str):
     get_email = Users.get(email=email)
     if get_email:
