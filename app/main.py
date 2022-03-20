@@ -1,9 +1,13 @@
+# My Dash 
 # uvicorn app.main:app --reload  
 from dataclasses import asdict
 import uvicorn
 from fastapi import FastAPI
 
 from typing import Optional
+
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from app.common.config import conf
 from app.database.conn import db
@@ -14,10 +18,12 @@ def create_app():
     앱 함수 실행
     :return:
     """
-    c=conf()
+
     app=FastAPI()
 
+    c=conf()
     conf_dict = asdict(c)
+    
     db.init_app(app, **conf_dict)
 
     # Initialize Database
