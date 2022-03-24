@@ -1,23 +1,8 @@
-conda install -c conda-forge fastapi uvicorn
-pip install 'pydantic[email]'
-conda install sqlalchemy pymysql
-conda install PyJWT bcrypt
-
-python_abi-3.8   
-certifi-2021.10.8    
-pydantic-1.8.2  
-fastapi-0.70.0  
-starlette-0.16.0
-uvicorn-0.15.0  
-anyio-3.3.4     
-click-8.0.3     
-sniffio-1.2.0
-
-greenlet-1.1.1    
-cryptography-3.4.8
-sqlalchemy-1.4.22 
-pymysql-1.0.2     
-cffi-1.14.6       
-
-pyjwt-2.1.0 
-bcrypt-3.2.0
+click==7.1.2
+fastapi==0.62.0
+h11==0.11.0
+pydantic==1.7.3
+PyMySQL==0.10.1
+SQLAlchemy==1.3.22
+starlette==0.13.6
+uvicorn==0.13.1

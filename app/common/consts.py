@@ -1,3 +1,2 @@
-# Prod vs. Devs
 JWT_SECRET = "ABCD1234!"
 JWT_ALGORITHM = "HS256"
