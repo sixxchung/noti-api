@@ -1,0 +1,12 @@
+conda update -all
+
+fastapi 
+uvicorn
+sqlalchemy
+pydantic
+'pydantic[email]'
+email_validator
+bcrypt
+pyjwt
+pymysql
+

@@ -16,6 +16,7 @@ import jwt     #json web tokens
 1. Google  로그인을 위한 구글  앱 준비 (구글 개발자 도구)
 2. Facebook로그인을 위한 FB    앱 준비 (FB 개발자 도구)
 3. kakao   로그인을 위한 카카오앱 준비 ( 카카오 개발자 도구)
+
 4. 이메일,        비밀번호로 가입    (v)
 5. 가입된 이메일, 비밀번호로 로그인, (v)
 6. JWT 발급 (v)
@@ -65,7 +66,7 @@ async def register(
         return token
     return JSONResponse(status_code=400, content=dict(msg="NOT_SUPPORTED"))
 
-# to util 많이 쓰는 함수 
+#  많이 쓰는 함수  util이나 component로 뺄 예정
 async def is_email_exist(email: str):
     get_email = Users.get(email=email)
     if get_email:

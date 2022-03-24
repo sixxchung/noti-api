@@ -16,7 +16,7 @@ class Config:
 @dataclass
 class LocalConfig(Config):
     PROJ_RELOAD: bool = True
-    DB_URL:str = "+pymysql://travis@localhost/notification_api?charset=utf8mb4"
+    DB_URL:str = "mysql+pymysql://travis@localhost/notification_api?charset=utf8mb4"
     TRUSTED_HOSTS=["*"]
     ALLOW_SITE=["*"]
 
@@ -47,4 +47,3 @@ def conf():
     """
     config = dict(prod=ProdConfig(), local=LocalConfig())
     return config.get(environ.get("API_ENV", "local"))
-

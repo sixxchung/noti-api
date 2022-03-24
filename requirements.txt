@@ -6,7 +6,6 @@ conda install PyJWT bcrypt
 python_abi-3.8   
 certifi-2021.10.8    
 pydantic-1.8.2  
-pydantic-1.8.2  
 fastapi-0.70.0  
 starlette-0.16.0
 uvicorn-0.15.0  

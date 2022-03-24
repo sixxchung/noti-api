@@ -3,16 +3,15 @@ from enum import Enum
 from pydantic.main import BaseModel
 from pydantic.networks import EmailStr
 
+# DB 모델이 아닌 pydantic이 validation하는 모델
 class SnsType(str, Enum): # Request모델 - incoming 들어오는거 
     email:str    = "email"
     facebook:str = "facebook"
     google:str   = "google"
     kakao:str    = "kakao"
 
-
 class Token(BaseModel):  #Response모델 - 나가는거 , 이런 모델을 가지고 있는 객체를 json으로 변경해서 내보냄 
     Authorization: str = None
-
 
 class UserToken(BaseModel):
     id: int

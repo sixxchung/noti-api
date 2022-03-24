@@ -10,10 +10,10 @@ from sqlalchemy import (
     Boolean,
     ForeignKey,
 )
-from sqlalchemy.ext.declarative import declarative_base
+#from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship
 
-from app.database.conn import Base, db
+from app.database.conn import db, Base
 
 class BaseMixin:
     id         = Column(Integer, primary_key=True, index=True)
@@ -69,16 +69,15 @@ class BaseMixin:
             raise Exception("Only one row is supposed to be returned, but got more than one.")
         return query.first()
 
-
 class Users(Base, BaseMixin):
     __tablename__="users"
-    status = Column(Enum("active", "deleted", "blocked"), default="active")
-    email  = Column(String(length= 255), nullable=True)
-    pw     = Column(String(length=2000), nullable=True)
-    name   = Column(String(length= 255), nullable=True)
+    status          = Column(Enum("active", "deleted", "blocked"), default="active")
+    email           = Column(String(length= 255), nullable=True)
+    pw              = Column(String(length=2000), nullable=True)
+    name            = Column(String(length= 255), nullable=True)
     phone_number    = Column(String(length=  20), nullable=True)
     profile_img     = Column(String(length=1000), nullable=True)
     sns_type        = Column(Enum("FB","G","K"), nullable=True)
     marketing_agree = Column(Boolean, nullable=True, default=True)
-    keys   = relationship("ApiKeys", back_populates="users")
+    # keys = relationship("ApiKeys", back_populates="users")
  

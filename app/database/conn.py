@@ -1,8 +1,8 @@
 #import sqlalchemy
 
-from sqlalchemy import create_engine
+from sqlalchemy                 import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm             import sessionmaker
 
 from fastapi import FastAPI
 import logging
@@ -14,7 +14,7 @@ class SQLAlchemy:
         if app is not None:
             self.init_app(app=app, **kwargs)
 
-    def init_app(self, app: FastAPI, **kwargs):
+    def init_app(self, app:FastAPI, **kwargs):
         """
         DB initial function
         :param app : FastAPI instance
@@ -22,14 +22,14 @@ class SQLAlchemy:
         :return:
         """
         database_url = kwargs.get("DB_URL")
+        echo         = kwargs.setdefault("DB_ECHO", True)
         pool_recycle = kwargs.setdefault("DB_POOL_RECYCLE", 900)
-        echo = kwargs.setdefault("DB_ECHO", True)
 
         self._engine= create_engine(
-            database_url,
-            echo=echo,
-            pool_recycle=pool_recycle,
-            pool_pre_ping=True
+            url = database_url,
+            echo = echo,
+            pool_recycle = pool_recycle,
+            pool_pre_ping = True
         )
 
         self._session= sessionmaker(autocommit=False, autoflush=False, bind=self._engine)
