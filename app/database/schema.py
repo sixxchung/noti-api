@@ -59,8 +59,9 @@ class BaseMixin:
             query = query.filter(col == val)
 
         if query.count() > 1:
-            raise Exception("Only 1 row is supposed to be returned, but got more than 1.")
+            raise Exception("Only one row is supposed to be returned, but got more than one.")
         return query.first()
+
 
 
 class Users(Base, BaseMixin):
