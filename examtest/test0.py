@@ -52,3 +52,17 @@ async def prediction_route(file: UploadFile = File(...)):
     predictions = model.predict(prediction_array)
     prediction = np.argmax(predictions[0])
     return {"result": int(prediction)}
+
+
+
+for c in s:
+    print(c)
+
+    s = 'k'
+    c = '0' 
+    c = '123' 
+    c = '12' 
+    if c in "0123Xx":
+        print(c)
+    else:
+        print("NOT")
