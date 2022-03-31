@@ -1,30 +1,25 @@
 import uvicorn
-from typing import Optional
+from typing import Optional, List, Set
 import fastapi
 import pydantic
-
-class Item(pydantic.BaseModel):
-    name: str
-    description: Optional[str] = None
-    price: float
-    tax: Optional[float] = None
+from fastapi import Path, Query, Body
+from pydantic import BaseModel, Field
 
 app = fastapi.FastAPI()
 
+class Item(pydantic.BaseModel):
+    name: str
+    description: Optional[str] = pydantic.Field(None, max_length=16)
+    price: float = Field(..., gt=0, description=" must be greater than 0")
+    tax: Optional[float] = None
+    tags:list =[]
+    tags:List[str]=[]
+    tags:Set[str]= set()
 
-@app.get("/items0/")
-async def read_items(item: Item, q: Optional[str] = None):   # Query(None)
-    results = {"items": [{"item_id": "Foo"}, **item.dict()]}
-    if q:
-        results.update({"q": q})
-    return results
-
-@app.get("/items1/")
-async def read_items(q: Optional[str] = fastapi.Query(None, max_length=50)):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
+@app.put("/items/{item_id}")
+async def update_item(item_id: int, item: Item = Body(..., embed=True)):
+    results = {"item_id": item_id, "item": item}
     return results
 
 if __name__ == '__main__':
-    uvicorn.run("request_body:app", host="0.0.0.0", port=8886, reload=True)
+    uvicorn.run("pyclasss:app", host="0.0.0.0", port=8886, reload=True)
