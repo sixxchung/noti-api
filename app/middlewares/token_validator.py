@@ -19,6 +19,7 @@ from app.models import UserToken
 
 from app.utils.date_utils import D
 
+
 class AccessControl:
     def __init__(
         self,

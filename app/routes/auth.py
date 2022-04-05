@@ -47,10 +47,10 @@ router = APIRouter(prefix="/auth")
 @router.post("/register/{sns_type}", status_code=201, response_model=Token)
 async def register(sns_type: SnsType, reg_info: UserRegister, session: Session = Depends(db.session)):
     """
-    `회원가입 API` \n
-    :param sns_type:\n
-    :param reg_info:\n
-    :param session:\n
+    `회원가입 API`\n
+    :param sns_type:
+    :param reg_info:
+    :param session:
     :return:
     """
     if sns_type == SnsType.email:
