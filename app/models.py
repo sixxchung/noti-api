@@ -3,10 +3,12 @@ from enum import Enum
 from pydantic.main import BaseModel
 from pydantic.networks import EmailStr
 
+
 class UserRegister(BaseModel):
     # pip install 'pydantic[email]'
     email: EmailStr = None
     pw: str = None
+
 
 class SnsType(str, Enum):
     email: str = "email"
@@ -14,8 +16,10 @@ class SnsType(str, Enum):
     google: str = "google"
     kakao: str = "kakao"
 
+
 class Token(BaseModel):
     Authorization: str = None
+
 
 class UserToken(BaseModel):
     id: int
@@ -28,6 +32,7 @@ class UserToken(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class UserMe(BaseModel):
     id: int
