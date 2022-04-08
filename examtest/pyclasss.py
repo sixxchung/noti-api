@@ -16,9 +16,9 @@ class Item(pydantic.BaseModel):
     tags:List[str]=[]
     tags:Set[str]= set()
 
-@app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item = Body(..., embed=True)):
-    results = {"item_id": item_id, "item": item}
+@app.put("/items/xxxxxx}")
+async def update_item(: int, item: Item = Body(..., embed=True)):
+    results = {"": , "item": item}
     return results
 
 if __name__ == '__main__':
