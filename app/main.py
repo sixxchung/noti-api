@@ -1,5 +1,7 @@
-import sys, os
+import sys
+import os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 
 from dataclasses import asdict
 from typing import Optional
@@ -47,8 +49,8 @@ def create_app():
 
     # 라우터 정의
     app.include_router(index.router)
-    app.include_router(auth.router,  tags=["Authentication"], prefix="/api")
-    app.include_router(users.router, tags=["Users"],          prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
+    app.include_router(auth.router, tags=["Authentication"], prefix="/api")
+    app.include_router(users.router, tags=["Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
     return app
 
 

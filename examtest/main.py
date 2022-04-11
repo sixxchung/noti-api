@@ -1,15 +1,12 @@
-from typing import Text
-from window import Window
-from textfile import TextFile
-from database import Database
+import asyncio
 
-tf = TextFile()
-db = Database()
 
-w = Window(storage=tf)
-# w = Window(storage=TextFile())
-# w = Window(TextFile())
+async def main():
+    print('hello')
+    await asyncio.sleep(5)
+    print('world')
 
-w.write_text("Hello DI!")
-w.show_window()
-w.save_text()
+asyncio.run(
+    main()
+)
+
