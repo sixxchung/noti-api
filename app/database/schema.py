@@ -1,3 +1,6 @@
+# import sys
+# import os
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))
 
 from sqlalchemy import (
     Column,
@@ -17,7 +20,8 @@ from app.database.conn import Base, db
 class BaseMixin:
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, nullable=False, default=func.utc_timestamp())
-    updated_at = Column(DateTime, nullable=False, default=func.utc_timestamp(), onupdate=func.utc_timestamp())
+    updated_at = Column(DateTime, nullable=False,
+                        default=func.utc_timestamp(), onupdate=func.utc_timestamp())
 
     def __init__(self):
         self._q = None
@@ -51,23 +55,46 @@ class BaseMixin:
         return obj
 
     @classmethod
-    def get(cls, **kwargs) -> object:
+    def get(cls, session: Session = None, **kwargs):
         """
         Simply get a Row
+        :param session:
         :param kwargs:
         :return:
         """
-        session = next(db.session())
-        query = session.query(cls)
+        sess = next(db.session()) if not session else session
+        query = sess.query(cls)
         for key, val in kwargs.items():
             col = getattr(cls, key)
             query = query.filter(col == val)
 
         if query.count() > 1:
-            raise Exception("Only one row is supposed to be returned, but got more than one.")
+            raise Exception(
+                "Only one row is supposed to be returned, but got more than one.")
         result = query.first()
-        session.close()
+        if not session:
+            sess.close()
         return result
+
+    # @classmethod
+    # def get(cls, **kwargs):
+    #     """
+    #     Simply get a Row
+    #     :param kwargs:
+    #     :return:
+    #     """
+    #     session = next(db.session())
+    #     query = session.query(cls)
+    #     for key, val in kwargs.items():
+    #         col = getattr(cls, key)
+    #         query = query.filter(col == val)
+
+    #     if query.count() > 1:
+    #         raise Exception(
+    #             "Only one row is supposed to be returned, but got more than one.")
+    #     result = query.first()
+    #     session.close()
+    #     return result
 
     @classmethod
     def filter(cls, session: Session = None, **kwargs):
@@ -83,12 +110,18 @@ class BaseMixin:
             if len(key) > 2:
                 raise Exception("No 2 more dunders")
             col = getattr(cls, key[0])
-            if len(key) == 1: cond.append((col == val))
-            elif len(key) == 2 and key[1] == 'gt': cond.append((col > val))
-            elif len(key) == 2 and key[1] == 'gte': cond.append((col >= val))
-            elif len(key) == 2 and key[1] == 'lt': cond.append((col < val))
-            elif len(key) == 2 and key[1] == 'lte': cond.append((col <= val))
-            elif len(key) == 2 and key[1] == 'in': cond.append((col.in_(val)))
+            if len(key) == 1:
+                cond.append((col == val))
+            elif len(key) == 2 and key[1] == 'gt':
+                cond.append((col > val))
+            elif len(key) == 2 and key[1] == 'gte':
+                cond.append((col >= val))
+            elif len(key) == 2 and key[1] == 'lt':
+                cond.append((col < val))
+            elif len(key) == 2 and key[1] == 'lte':
+                cond.append((col <= val))
+            elif len(key) == 2 and key[1] == 'in':
+                cond.append((col.in_(val)))
         obj = cls()
         if session:
             obj._session = session
@@ -118,7 +151,8 @@ class BaseMixin:
                 col_name = a
                 is_asc = True
             col = self.cls_attr(col_name)
-            self._q = self._q.order_by(col.asc()) if is_asc else self._q.order_by(col.desc())
+            self._q = self._q.order_by(
+                col.asc()) if is_asc else self._q.order_by(col.desc())
         return self
 
     def update(self, auto_commit: bool = False, **kwargs):
@@ -127,7 +161,7 @@ class BaseMixin:
         ret = None
 
         self._session.flush()
-        if qs > 0 :
+        if qs > 0:
             ret = self._q.first()
         if auto_commit:
             self._session.commit()
@@ -171,6 +205,7 @@ class Users(Base, BaseMixin):
     profile_img = Column(String(length=1000), nullable=True)
     sns_type = Column(Enum("FB", "G", "K"), nullable=True)
     marketing_agree = Column(Boolean, nullable=True, default=True)
+    keys = relationship("ApiKeys", back_populates="users")
 
 
 class ApiKeys(Base, BaseMixin):
@@ -182,6 +217,7 @@ class ApiKeys(Base, BaseMixin):
     is_whitelisted = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     whitelist = relationship("ApiWhiteLists", backref="api_keys")
+    users = relationship("Users", back_populates="keys")
 
 
 class ApiWhiteLists(Base, BaseMixin):
