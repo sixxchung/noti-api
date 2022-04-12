@@ -10,9 +10,9 @@ class Config:
     기본 Configuration
     """
     BASE_DIR = base_dir
-
     DB_POOL_RECYCLE: int = 900
     DB_ECHO: bool = True
+    DEBUG = False
 
 
 @dataclass
@@ -20,12 +20,14 @@ class LocalConfig(Config):
     DB_URL: str = "mysql+pymysql://travis@localhost/notification_api?charset=utf8mb4"
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
+    DEBUG = True
 
 
 @dataclass
 class ProdConfig(Config):
     TRUSTED_HOSTS = ["*"]
     ALLOW_SITE = ["*"]
+
 
 
 def conf():

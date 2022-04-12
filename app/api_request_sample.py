@@ -13,12 +13,11 @@ def parse_params_to_str(params):
 
 
 def hash_string(qs, secret_key):
-    mac = hmac.new(bytes(secret_key, encoding='utf8'), bytes(
-        qs, encoding='utf-8'), digestmod='sha256')
+    mac = hmac.new(bytes(secret_key, encoding='utf8'), bytes(qs, encoding='utf-8'), digestmod='sha256')
     d = mac.digest()
     validating_secret = str(base64.b64encode(d).decode('utf-8'))
     return validating_secret
-# -----------------------
+
 
 def sample_request():
     access_key = "c0883231-4aa9-4a1f-a77b-3ef250af-e449-42e9-856a-b3ada17c426b"
