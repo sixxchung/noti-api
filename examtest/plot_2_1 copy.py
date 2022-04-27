@@ -1,0 +1,238 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+from tarfile import PAX_FIELDS
+import pandas as pd
+import numpy as np
+#import chart_studio.plotly as py
+#import cufflinks as cf
+import json
+from pandas import json_normalize
+
+### pd.option
+# pd.set_option('display.max_row', 500)
+# pd.set_option('display.max_columns', 100)
+# pd.options.plotting.backend = "plotly"    # matplotlib
+# pd.options.display.float_format = '{:.2f}'.format
+
+### DATA Folder ------------
+# ~/git/noti-api/app/data
+# /raid/templates/mobi_data
+BasePath = '../app/data/'
+
+#-------------------------------------------------------
+jdata = []
+filePath = BasePath + 'mobi_data/mobi1/mobility1_01.json'
+with open(filePath) as multiLines:
+    for line in multiLines:
+        jdata.append(json.loads(line))
+
+keys = ['mobiId', 'mobiTypCd', 'mobiTypNm',
+    'userId', 'userNm', 'interfaceDate', 'created',
+    'ctrlServId', 'mobiRegiNum', 'battId', 'eventName',
+    'eventCode', 'rentalState', 'rentalStateName' #, '_class'
+] # list(jdata[0].keys())[3:18]
+
+data = pd.DataFrame()
+for i in range(0,len(jdata)):
+    print(i) # i=0
+    dict0 = jdata[i]
+    # print(json.dumps(dict0, indent = 4))
+    gpsDD = json_normalize(dict0['gps'])
+    batteryDD = json_normalize(dict0['battery'])
+
+    result = {k:v for k,v in dict0.items() if k in keys}
+    resultDD = pd.DataFrame.from_dict(data=[result]) 
+
+    if (int(gpsDD.Created)==int(batteryDD.Created)) & (int(batteryDD.Created)==int(resultDD.created)):
+        pass
+    else:
+        print("불일치")
+
+    data00 = pd.concat([batteryDD.iloc[:,1:], gpsDD.loc[:, ['Latitude','Longitude']], resultDD], axis=1)
+    data00.index = pd.Index(batteryDD.Created)
+
+    data = pd.concat([data, data00])
+
+print(data) 
+data.shape
+
+parquetPath = BasePath + 'mobility1_01.parquet'
+data.to_parquet(parquetPath)
+# -------------------------------------------------------
+
+parquetPath = BasePath + 'mobility1_01.parquet'
+df = pd.read_parquet(parquetPath)
+
+df_s = df.sort_index(ascending=True)
+df_s['timediff'] = df_s.created.diff()
+# pd.to_datetime(df_s.created, format='%Y%m%d%H%M%S%f')
+
+import plotly.express as px
+import plotly.graph_objects as go
+
+
+
+
+
+
+
+
+
+
+
+
+    ### 데이터 변수 생성 및 정렬
+    # 연도, 월 변수 생성
+    df['year'] = df.OrderDate.str.slice(start=0, stop=4)
+    df['month'] = df.OrderDate.str.slice(start=5, stop=7)
+    # 데이터 정렬
+    df = df.sort_values(by=['Region', 'Channel', 'Category',
+                        'Item Type', 'year', 'month', 'Gender'])
+    df.info()  # 데이터 구조 파악
+
+    ### 시각화를 위한 데이터 가공
+    # 2020년도 이익 변수 생성
+    d20 = df[df.year == '2020'].copy()
+    d20['Margin'] = d20.Revenue - d20.Cost
+
+
+    # Country 별 매출 및 이익 합계 산출
+    # as_index =True인 겨우, Country가 index가 된다.
+    df_g = d20.loc[:, ['Country', 'Revenue', 'Margin']].groupby(
+        by=['Country'], as_index=False).sum()
+
+    df_g.index
+
+    df_g = df_g.sort_values(by=['Revenue'], ascending=False)
+    df_g['rank'] = list(range(1, df_g.shape[0]+1))
+    df_g['rank']
+
+
+    df_g = df_g.sort_values(by=['Revenue'], ascending=False)
+
+    # 매출 순위 변수 (rank) 생성 후, 매출 상위 10개 Country 추출
+    df_g['rank'] = list(range(1, len(df_g['Country'])+1))
+    df_g1 = df_g[df_g['rank'] <= 10].reset_index(drop=True)
+    df_g1
+
+
+    # https://plotly.com/python/bar-charts/
+
+    trace = go.Bar(x=df_g1['Country'],  # x축 - 국가별
+                y=df_g1['Revenue'],  # y축 - 매출액
+                text=round(df_g1['Revenue'], 2),  # text 내용(소수점 2자리 반올림)
+                )
+    data = [trace]  # data 객체에 리스트로 저장
+    layout = go.Layout(title='Chapter 2.1 - Bar Chart',
+                    width=1000, height=600)  # 제목 지정
+    fig = go.Figure(data, layout)
+    fig.show()
+
+
+    ## 참고) 입력방식 비교
+    ### Data 객체 입력 방식1. add_trace( ) 함수 이용
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=df_g1['Country'],  # x축
+                        y=df_g1['Revenue'],  # y축
+                        text=df_g1['Revenue'],  # 값
+                        ))
+    fig.update_layout(title='Chapter 2.1 - Bar Chart')
+    fig.show()
+
+
+    ### Data 객체 입력 방식2. Figure( )에 직접적으로 data 객체를 정의
+    fig = go.Figure(data=[
+        go.Bar(x=df_g1['Country'],  # x축
+            y=df_g1['Revenue'],  # y축
+            text=round(df_g1['Revenue'], 2),  # 값
+            )
+    ])
+    fig.update_layout(title='Chapter 2.1 - Bar Chart')
+    fig.show()
+
+
+    ### Data 객체 입력 방식3. data 객체를 정의한 뒤 Figure( )에 입력
+    trace = go.Bar(x=df_g1['Country'],  # x축
+                y=df_g1['Revenue'],  # y축
+                text=round(df_g1['Revenue'], 2),  # 값
+                )
+    data = [trace]  # data 객체에 리스트로 저장
+    layout = go.Layout(title='Chapter 2.1 - Bar Chart')  # 제목 지정
+    fig = go.Figure(data, layout)
+    fig.show()
+
+
+    ## 참고) 그래프 중첩 입력방법 비교
+    ### Data 객체 입력 방식1.
+    fig = go.Figure()
+    fig.add_trace(go.Bar(y=df_g1['Country'],  # y축
+                        x=df_g1['Revenue'],  # x축
+                        name='Revenues',
+                        orientation='h'
+                        ))
+    fig.add_trace(go.Bar(y=df_g1['Country'],  # y축
+                        x=df_g1['Margin'],  # x축
+                        name='Margins',
+                        orientation='h'
+                        ))
+    # Change the bar mode
+    fig.update_layout(title='Chapter 2.1 - Bar Chart',
+                    barmode='group',
+                    yaxis=dict(autorange='reversed'))
+    fig.show()
+
+
+    ### Data 객체 입력 방식2.
+    fig = go.Figure(data=[
+        go.Bar(y=df_g1['Country'],  # y축
+            x=df_g1['Revenue'],  # x축
+            name='Revenues',
+            orientation='h'
+            ),
+        go.Bar(y=df_g1['Country'],  # y축
+            x=df_g1['Margin'],  # x축
+            name='Margins',
+            orientation='h'
+            )
+    ])
+    # Change the bar mode
+    fig.update_layout(title='Chapter 2.1 - Bar Chart',
+                    barmode='group',
+                    yaxis=dict(autorange='reversed'))
+    fig.show()
+
+
+    ### Data 객체 입력 방식3.
+    trace1 = go.Bar(y=df_g1['Country'],  # y축
+                    x=df_g1['Revenue'],  # x축
+                    name='Revenues',
+                    orientation='h'
+                    )
+    trace2 = go.Bar(y=df_g1['Country'],  # y축
+                    x=df_g1['Margin'],  # x축
+                    name='Margins',
+                    orientation='h'
+                    )
+    data = [trace1, trace2]
+    # Change the bar mode
+    layout = go.Layout()
+    layout = go.Layout(title='Chapter 2.1 - Bar Chart',
+                    #barmode = 'group',
+                    #yaxis = dict(autorange='reversed'),
+                    #                    yaxis = {'autorange':'reversed'}
+                    )
+    fig = go.Figure(data, layout)
+    fig.show()
+
+    trace = go.Bar(
+        x=df_g1['Country'],  # x축 - 국가별
+        y=df_g1['Revenue'],  # y축 - 매출액
+        text=round(df_g1['Revenue'], 2),  # text 내용(소수점 2자리 반올림)
+    )
+    layout = go.Layout(
+        title='Chapter 2.1 - Bar Chart',
+        width=1000, height=600
+    )
+    fig = go.Figure(data=[trace], layout=layout)
+    fig.show()
