@@ -1,30 +1,26 @@
+from multiprocessing import Pool
+import multiprocessing
 import time
+import defs
+
+multiprocessing.cpu_count()
+
+if __name__ == '__main__':
+    st = time.time()
+    pool = multiprocessing.Pool(processes=100)
+    pool.map(defs.func, 5, 1,2)
+    print(time.time()-st)
 
 
-def sync_task_1():
-    print('sync_task_1 시작')
-    print('sync_task_1 3초 대기')
-    time.sleep(3)
-    print('sync_task_1 종료')
+ex = [1.2, 2.5, 3.7, 4.6]
 
+result = [0] * len(ex)
+for i in range(len(ex)):
+    result[i] = int(ex[i])
 
-def sync_task_2():
-    print('sync_task_2 시작')
-    print('sync_task_2 2초 대기')
-    time.sleep(2)
-    print('sync_task_2 종료')
+ex = [1.2, 2.5, 3.7, 4.6]
 
-
-start = time.time()
-sync_task_1()
-sync_task_2()
-end = time.time()
-print(end-start)
-
-# sync_task_1 시작
-# sync_task_1 3초 대기
-# sync_task_1 종료
-# sync_task_2 시작
-# sync_task_2 2초 대기
-# sync_task_2 종료
-# 5.00602912902832
+result = list()
+for i in range(len(ex)):
+    result.append(int(ex[i]))
+result

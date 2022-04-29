@@ -24,13 +24,13 @@ tz.localize(datetime(1970, 1, 1, 0, 0)).timestamp()
 
 # epoch to datetime string
 seconds = 800025
-datetime.datetime.fromtimestamp(seconds)
+datetime.fromtimestamp(seconds)
 # datetime.datetime(1970, 1, 10, 15, 13, 45)
-(datetime.datetime.fromtimestamp(800025)).strftime('%Y-%m-%d %H:%M:%S')
+(datetime.fromtimestamp(800025)).strftime('%Y-%m-%d %H:%M:%S')
 # '1970-01-10 15:13:45'
 
 millseconds = 1.224325    # DateTime milliseconds
-datetime.datetime.fromtimestamp(millseconds)
+datetime.fromtimestamp(millseconds)
 # datetime.datetime(1970, 1, 1, 9, 0, 1, 224325)
 
 # epoch to DateTime timezone
@@ -101,12 +101,10 @@ gp_filtered.apply(uf_ex)
 gp_filtered.transform(uf_ex)
 
 
+datetime(1970, 1, 1, 0, 0) - datetime(1970, 1, 1, 0, 0)
 
 
-
-
-
-
+datetime.
 
 
 grouped.first()  # 각 그룹의 첫번째 행
