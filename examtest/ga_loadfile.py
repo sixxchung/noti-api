@@ -18,6 +18,8 @@ from datetime import datetime
 
 import multiprocessing
 from multiprocessing import Pool
+
+import defs
 # multiprocessing.cpu_count()  # 2
 # # pd.option
 # # pd.set_option('display.max_row', 500)
@@ -67,10 +69,20 @@ BasePath = '../app/data/'
 j = 1
 # -------------------------------------------------------
 jdata = []
-filePath = BasePath + f'mobi_data/mobi1/mobility1_0{j}.json'
+#filePath = BasePath + f'mobi_data/mobi1/mobility1_0{j}.json'
+filePath = BasePath + f'mobi-ex1-single_quote.json'
+with open(filePath) as multiLines:
+    data =  multiLines.readlines()
+data
+
+
 with open(filePath) as multiLines:
     for line in multiLines:
         jdata.append(json.loads(line))
+
+
+
+
 
 # key_remain = list(jdata[0].keys())
 # [key_remain.remove(i) for i in {'_id', 'gps', 'battery', '_class'}]
@@ -78,10 +90,16 @@ with open(filePath) as multiLines:
 #               'created', 'ctrlServId', 'mobiRegiNum', 'battId', 'eventName',
 #               'eventCode', 'rentalState', 'rentalStateName']
 
-aPrecess = int(multiprocessing.cpu_count()*0.25)
+ap = int(multiprocessing.cpu_count()*0.25)
 data = pd.DataFrame()
-with Pool(aPrecess) as p:
-    p.map(mywork, [range(0, len(jdata)), jdata])
+with Pool(ap) as p:
+    p.map(int, range(5))
+
+    result = p.map(defs.mywork1, jdata)
+
+list(map(defs.mywork1, jdata))
+
+defs.mywork1
 
 print(data)
 data.shape
