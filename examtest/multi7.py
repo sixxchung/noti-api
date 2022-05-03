@@ -52,6 +52,5 @@ def main(args):
 
 if __name__ == '__main__':
     args = sys.argv
-    #print(args)
     result, ex_time = main(args)
     print(f"SUM of 0 ~ {args[2]} : {result} in {ex_time:.5f} sec")
