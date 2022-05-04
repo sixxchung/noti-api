@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import math
+from multiprocessing.dummy import Process
+from defs import poolcontext, mywork
 import plotly.graph_objects as go
 import plotly.express as px
 from tarfile import PAX_FIELDS
@@ -16,9 +19,8 @@ from pandas import json_normalize
 from datetime import datetime
 
 
-import multiprocessing
-from multiprocessing import Pool
-# multiprocessing.cpu_count()  # 2
+import multiprocessing as mp
+mp.cpu_count()  # 2
 # # pd.option
 # # pd.set_option('display.max_row', 500)
 # # pd.set_option('display.max_columns', 100)
@@ -59,7 +61,14 @@ from multiprocessing import Pool
 #     #data00.index = pd.Index(batteryDD.Created)
 #     data = pd.concat([data, data00])
 
-from defs import poolcontext, mywork
+
+import defs
+
+
+def divideList(someList, n):
+    return [someList[i: i+n] for i in range(0, len(someList), n)]
+
+
 # DATA Folder ------------
 # ~/git/noti-api/app/data, # /raid/templates/mobi_data
 BasePath = '../app/data/'
@@ -78,17 +87,49 @@ with open(filePath) as multiLines:
 #               'created', 'ctrlServId', 'mobiRegiNum', 'battId', 'eventName',
 #               'eventCode', 'rentalState', 'rentalStateName']
 
-aPrecess = int(multiprocessing.cpu_count()*0.25)
-data = pd.DataFrame()
-with Pool(aPrecess) as p:
-    p.map(mywork, [range(0, len(jdata)), jdata])
 
-print(data)
-data.shape
-# data.drop(['interfaceDate'])
+def main(args):
+    if args[1].lower == 'single':
+        _timeStart = time.time()  # ---
+        result = mywork(jdata)
+        _timeEnd = time.time()  # ---
+        return result, _timeEnd - _timeStart
+    elif args[1].lower == 'multi':
+        aProcess = int(mp.cpu_count()*0.25)  # 에러처리필요.
+        d = math.ceil(len(jdata)/aProcess)
+        jdata_d = list(defs.divideList(jdata, d))
+        # aProcess == len(jdata_d)
+        # [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i'], ['j']]
 
-parquetPath = BasePath + f'mobility1_0{j}.parquet'
-data.to_parquet(parquetPath)
+        queue = mp.Queue()
+        tasks = []
+
+        for i in range(len(jdata_d)):
+            # i=0
+            thrd = mp.Process(mywork, args=(jdata_d[i],queue))
+            tasks.append(thrd)
+            thrd.start()
+        for task in tasks:
+            task.join()
+
+        queue.put("END")
+        result = pd.DataFrame()
+        while True:
+            mid = queue.get()
+            if mid == "END":
+                return result
+            result.append(mid)
 
 
 
+
+        data = pd.DataFrame()
+        with mp.Pool(aProcess) as p:
+            p.map(mywork, jdata_d)
+
+        print(data)
+        data.shape
+        # data.drop(['interfaceDate'])
+
+        parquetPath = BasePath + f'mobility1_0{j}.parquet'
+        data.to_parquet(parquetPath)
