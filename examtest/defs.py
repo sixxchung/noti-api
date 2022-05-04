@@ -6,13 +6,15 @@ import pandas as pd
 from functools import partial
 from contextlib import contextmanager
 
-
-def func(i):
-    print(i)
+from multiprocessing import Pool
+import time
+import os
 
 
 def mywork1(x):
-    print(f"answer{x}={x*x}  | ")
+    print(f'value {x} is in PID {os.getpid()}')
+    time.sleep(1)
+    return x
 
 
 def mywork2(arg1, arg2):

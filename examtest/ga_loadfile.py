@@ -76,10 +76,20 @@ BasePath = '../app/data/'
 j = 1
 # -------------------------------------------------------
 jdata = []
-filePath = BasePath + f'mobi_data/mobi1/mobility1_0{j}.json'
+#filePath = BasePath + f'mobi_data/mobi1/mobility1_0{j}.json'
+filePath = BasePath + f'mobi-ex1-single_quote.json'
+with open(filePath) as multiLines:
+    data =  multiLines.readlines()
+data
+
+
 with open(filePath) as multiLines:
     for line in multiLines:
         jdata.append(json.loads(line))
+
+
+
+
 
 # key_remain = list(jdata[0].keys())
 # [key_remain.remove(i) for i in {'_id', 'gps', 'battery', '_class'}]
