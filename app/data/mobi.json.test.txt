@@ -1,0 +1,12 @@
+{"_id":{"$oid":"1"},"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"2"},"rentalStateName":"대여중2","_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"3"},,"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"4"},"rentalStateName":"대여중4"}
+{"_id":{"$oid":"5"},"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"6"},"rentalStateName":"대여중6","_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"7"},,"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"8"},"rentalStateName":"대여중8"}
+{"_id":{"$oid":"9"},"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"10"},"rentalStateName":"대여중10","_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"11"},,"_class":"com.garak.ingestor.document.MobilityOriginal"}
+{"_id":{"$oid":"12"},"rentalStateName":"대여중12"}
