@@ -94,6 +94,7 @@ def test():
     print(df.shape)
     print(df.size)
     print(df.memory_usage())
-test()
+    return df
+df = test()
 
-
+df.columns
