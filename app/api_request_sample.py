@@ -27,9 +27,27 @@ def sample_request():
     qs = dict(key=access_key, timestamp=cur_timestamp)
     header_secret = hash_string(parse_params_to_str(qs), secret_key)
 
-    url = f"http://0.0.0.0:8886/api/services?{parse_params_to_str(qs)}"
+    url = f"http://127.0.0.1:8080/api/services?{parse_params_to_str(qs)}"
     res = requests.get(url, headers=dict(secret=header_secret))
     return res
 
 
 print(sample_request().json())
+
+
+
+
+
+"""
+채널톡 사업자!
+친구에게 전송
+나에게 전송
+"""
+
+
+
+
+
+
+
+

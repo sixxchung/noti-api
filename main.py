@@ -1,51 +1,61 @@
+from dataclasses import asdict
+from typing import Optional
 
-from matplotlib import markers
-from matplotlib.pyplot import title
-import statsmodels.api as sm
-import plotly.graph_objects as go
-import plotly.express as px
-df = px.data.tips()
-df = df.sort_values(by="total_bill")
+import uvicorn
+from fastapi import FastAPI, Depends
+from fastapi.security import APIKeyHeader
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
-fig = px.scatter(df, 
-    x="total_bill", y="tip", 
-#   color='sex',
-#   facet_col="day",
-#   facet_row="time"
-)
-fig.show()
+from app.common.consts import EXCEPT_PATH_LIST, EXCEPT_PATH_REGEX
+from app.database.conn import db
+from app.common.config import conf
+from app.middlewares.token_validator import access_control
+from app.middlewares.trusted_hosts import TrustedHostMiddleware
+from app.routes import index,auth,users,services
+API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
 
+def create_app():
+    """
+    앱 함수 실행
+    :return:
+    """
+    c = conf()
+    app = FastAPI()
+    conf_dict = asdict(c)
+    db.init_app(app, **conf_dict)
+    # 데이터 베이스 이니셜라이즈
 
-model = sm.OLS(df["tip"], sm.add_constant(df["total_bill"])).fit()
+    # 레디스 이니셜라이즈
 
-#create the trace to be added to all facets
-trace1 = go.Scatter(
-    x=df.total_bill,
-    y=df.tip,
-    mode= 'markers'
-)
-trace2 = go.Scatter(
-    x=df["total_bill"],
-    y=model.predict(),
-    line_color="black",
-    name="overall OLS")
+    # 미들웨어 정의
+    app.add_middleware(middleware_class=BaseHTTPMiddleware,
+                       dispatch=access_control)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=conf().ALLOW_SITE,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=conf(
+    ).TRUSTED_HOSTS, except_path=["/health"])
 
-# give it a legend group and hide it from the legend
-trace2.update(legendgroup="trendline", showlegend=False)
+    # 라우터 정의
+    app.include_router(index.router)
+    app.include_router(auth.router, tags=["Authentication"], prefix="/api")
+    if conf().DEBUG:
+        app.include_router(services.router, tags=[
+                           "Services"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
+    else:
+        app.include_router(services.router, tags=["Services"], prefix="/api")
+    app.include_router(users.router, tags=[
+                       "Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
+    return app
 
-layout = go.Layout(
-    title="Tips",
-    xaxis=dict(title="total bill"),
-    yaxis=dict(title='tip')
-)
 
-fig = go.Figure(data=[trace1, trace2], layout=layout)
+app = create_app()
 
-# add it to all rows/cols, but not to empty subplots
-fig.add_trace(trace2, row="all", col="all", exclude_empty_subplots=True)
-# set only the last trace added to appear in the legend
-# `selector=-1` introduced in plotly v4.13
-fig.update_traces(selector=-1, showlegend=True)
-
-fig.show()
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
