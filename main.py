@@ -14,7 +14,7 @@ from app.middlewares.token_validator import access_control
 from app.middlewares.trusted_hosts import TrustedHostMiddleware
 from app.routes import index,auth,users,services
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
-
+   
 
 def create_app():
     """
