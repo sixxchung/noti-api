@@ -47,9 +47,32 @@ col_category = [col for col in df.columns if df[col].nunique()<20]
 
 cols = sorted(list(set(df.columns)-set(col_unique)-set(col_null)-set(col_category)))
 df = df[cols]
-
+# ['AvailCapa',  'AvgCellVol',  'AvgTemp',
+#  'Cell01', 'Cell02', 'Cell03'~  'Cell64',
+#  'Created',
+#  'InvVol', 
+#  'Latitude', 'Longitude',
+#  'MaxCellNo', 'MaxCellVol', 'MaxChgPwr', 'MaxDChgPwr', 'MaxTemp',
+#  'MinCellNo', 'MinCellVol', 'MinTemp', 
+#  'ModVol01', 'ModVol02', 'ModVol03', 'ModVol04', 'ModVol05', 'ModVol06',
+#  'PackCurr', 'PackSOC', 'PackVol', 'RealPwr',
+#  'Temp01', 'Temp02', 'Temp03', ~ 'Temp24',
+#  'created']
 #----------time
+if (df.created == df.Created).sum() == df.shape[0] :
+    df.drop(['Created'], axis=1)
 df = df.sort_values(by=['created'], ascending=True)
+created_diff = df.created.diff(periods=1)
+
+fig= px.scatter(None, x=range(122281), y=created_diff[1:])
+fig.show()
+fig= px.scatter(None, x=[1,2,3,4,5,6], y=range(6))
+
+
+
+px.scatter()
+
+
 df.reset_index(drop=True)
 df.columns
 fig = px.scatter(df,
