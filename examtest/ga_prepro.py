@@ -23,7 +23,6 @@ import plotly.express as px
 # stocks = px.data.stocks()
 # tips = px.data.tips()
 
-
 def read_ParquetData(srcPath):
     _time_s = time.time()
     df = pd.read_parquet(srcPath)
@@ -34,18 +33,28 @@ def read_ParquetData(srcPath):
 
 df_o = read_ParquetData('../app/data/mobility1.parquet')
 df = df_o.copy()
-# -------------------------------------------------------
+df = df.sort_values(by=['Created'], ascending=True)
 #df_s = df.sort_index(ascending=True)
+df = df.reset_index(drop=True)
+### 167
 
+# -------------------------------------------------------
 #  칼럼별 결측값 개수 구하기
 col_null = [col for col in df.columns if df[col].isnull().sum()>0]
 col_unique = [col for col in df.columns if df[col].nunique()<2]
 df[col_unique].drop_duplicates()
+#41
+col_cate0 = [col for col in df.columns if df[col].nunique()<20]
+### 53 
+#df[col_cate0].drop_duplicates()
+col_category = list(set(col_cate0)-set(col_unique))
+#12
 
-col_category = [col for col in df.columns if df[col].nunique()<20]
+{col: sorted(list(df[col].unique()))  for col in col_cate0}
 {col: sorted(list(df[col].unique()))  for col in col_category}
 
-cols = sorted(list(set(df.columns)-set(col_unique)-set(col_null)-set(col_category)))
+cols = sorted(list(set(df.columns)-set(col_unique)-set(col_null)-set(col_cate0)))
+# 114
 df = df[cols]
 # ['AvailCapa',  'AvgCellVol',  'AvgTemp',
 #  'Cell01', 'Cell02', 'Cell03'~  'Cell64',
@@ -59,10 +68,36 @@ df = df[cols]
 #  'Temp01', 'Temp02', 'Temp03', ~ 'Temp24',
 #  'created']
 #----------time
-if (df.created == df.Created).sum() == df.shape[0] :
-    df.drop(['Created'], axis=1)
-df = df.sort_values(by=['created'], ascending=True)
-created_diff = df.created.diff(periods=1)
+
+df[[ 'Created','created',
+    'Cell01', 'MaxCellNo', 'MaxCellVol','MinCellNo', 'MinCellVol',
+    'ModVol01', 
+    'Temp01', 'AvgTemp', 'MaxTemp', 'MinTemp',
+    'PackCurr', 'PackSOC', 'PackVol', 'RealPwr',
+    'AvailCapa',  'AvgCellVol',
+    'InvVol', 
+    'MaxChgPwr', 'MaxDChgPwr', 
+    'Latitude', 'Longitude']]
+
+# sum(df['Created']-df['created']) == 0
+df.drop(['Created'], axis=1)
+
+col_nn = ['Created',
+    'Cell01', 'MaxCellNo', 'MaxCellVol','MinCellNo', 'MinCellVol',
+    'ModVol01', 
+    'Temp01', 'AvgTemp', 'MaxTemp', 'MinTemp',
+    'PackCurr', 'PackSOC', 'PackVol', 'RealPwr',
+    'AvailCapa',  'AvgCellVol',
+    'InvVol', 
+    'MaxChgPwr', 'MaxDChgPwr', 
+    'Latitude', 'Longitude']
+
+dft = df[col_nn + col_category]
+
+
+
+
+created_diff = dft.Created.diff(periods=1)
 
 fig= px.scatter(None, x=range(122281), y=created_diff[1:])
 fig.show()
@@ -71,8 +106,6 @@ fig= px.scatter(None, x=[1,2,3,4,5,6], y=range(6))
 
 
 px.scatter()
-
-
 df.reset_index(drop=True)
 df.columns
 fig = px.scatter(df,
