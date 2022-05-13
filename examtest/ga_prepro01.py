@@ -27,7 +27,7 @@ from datetime import datetime
 # /raid/templates/mobi_data
 BasePath = '../app/data/'
 # -------------------------------------------------------
-parquetPath = BasePath + 'mobility1_01.parquet'
+parquetPath = BasePath + 'mobility1.parquet'
 df = pd.read_parquet(parquetPath)
 df_s = df.sort_index(ascending=True)
 # df_s = df.sort_values(by=['created'], ascending=False)
