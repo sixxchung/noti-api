@@ -58,7 +58,7 @@ col_category = list(set(col_cate0)-set(col_unique))
 cols = sorted(list(set(df.columns)-set(col_unique) -
               set(col_null)-set(col_cate0)))
 # 114
-df = df[cols]
+
 # [
 #  'Created',
 #  'Cell01', 'Cell02', 'Cell03'~  'Cell64',
@@ -82,7 +82,7 @@ col_nn =['Created',
     'Latitude', 'Longitude']
 dft = df[col_nn + col_category]
 
-dft['Created'].diff(periods=1)
+dft.loc[['created_diff']] = dft['Created'].diff(periods=1)
 dft.dtypes
 # datetime.fromtimestamp(dft['Created'][0]/1000)
 
