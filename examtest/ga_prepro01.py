@@ -262,3 +262,21 @@ layout = go.Layout(
 )
 fig = go.Figure(data=[trace], layout=layout)
 fig.show()
+
+
+
+
+import pandas as pd
+
+
+a = [1,2,3,4,5,6,7,8]
+b = [1,2,4,8,16,32,64,128]
+c = [8,7,6,5,4,3,2,1]
+data = {"col1":a,"col2":b,"col3":c}
+df = pd.DataFrame(data)
+print(df)
+print(df.diff(axis=0))
+
+print(df.loc[[a]].diff(axis=0))
+
+df.loc[:,['col1']].diff()
