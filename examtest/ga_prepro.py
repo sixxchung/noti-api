@@ -82,21 +82,7 @@ col_numeric = sorted(list(
     set(col_max) - set(col_min))
 )  # 6
 
-
-# [
-#  'Created',
-#  'Cell01', 'Cell02', 'Cell03'~  'Cell64',
-#  'Temp01', 'Temp02', 'Temp03', ~ 'Temp24',
-#  'ModVol01', 'ModVol02', 'ModVol03', 'ModVol04', 'ModVol05', 'ModVol06',
-#  'AvailCapa',  'AvgCellVol',  'AvgTemp',
-#  'InvVol',
-#  'Latitude', 'Longitude',
-#  'MaxCellNo', 'MaxCellVol', 'MaxChgPwr', 'MaxDChgPwr', 'MaxTemp',
-#  'MinCellNo', 'MinCellVol', 'MinTemp',
-#  'PackCurr', 'PackSOC', 'PackVol', 'RealPwr']
-# ----------time
 {col: sorted(list(df[col].unique())) for col in col_category}
-
 
 # for observe
 col_nn =['Created',
@@ -111,14 +97,31 @@ dft0 = df[col_nn + col_category]
 dft = dft0.copy()
 dft['created_diff'] = dft['Created'].diff(periods=1)
 # datetime.fromtimestamp(dft['Created'][0]/1000)
+
 dft.loc[:, ['Created_dt']] = [datetime.fromtimestamp(created/1000) for created in dft['Created'] ]
-dft['Created_dt']
+dft['Cdate'] = dft['Created_dt']
+
+
+
+
+
+#dft.set_index(df['Created_dt'], inplace=True)
+
+#dft['Created_dt'].dt.year
+dft['Created_dt'].dt.to_period(freq='S')  # A M D T S
+
 dft['created_dt_diff'] = dft['Created_dt'].diff(periods=1)
 #dft.dtypes
 df_f= dft[dft.columns[dft.columns.str.endswith('_diff')]]
 #------------------------------------------------------
-dfg = dft[(df_f['created_diff'] < 995) | (df_f['created_diff'] > 1005)]
-trace = go.Scatter( x=dfg['Created'],  y=dfg['created_diff'] ) #, text=dfg['created_dt_diff'])
+
+dfg = dft[(df['created'] > 1641696000000) & (df['created'] < 1641700000000)]
+dfg[col_pack]
+#dfg = dft[(df_f['created_diff'] < 995) | (df_f['created_diff'] > 1005)]
+trace = go.Scatter( x=dfg['Created'],  y=dfg['InvVol'] , 
+        mode='markers+lines', 
+        marker=dict(size=3, color='red'),
+        line=dict(width=0.1, color='grey')) #, text=dfg['created_dt_diff'])
 layout = go.Layout(title="AAA")
 fig = go.Figure(data=trace, layout=layout)
 fig.show()

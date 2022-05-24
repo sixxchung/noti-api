@@ -1,19 +1,19 @@
 import pandas as pd
 import plotly.express as px
 iris0 = px.data.iris()
-iris = pd.concat( [iris0.iloc[31:38], iris0.iloc[142:143,:]])
+iris = pd.concat([iris0.loc[[9]],  iris0.iloc[31:38],
+                 iris0.loc[[101]], iris0.iloc[142:143, :]])
 
+iris.duplicated(keep='first', subset=None)
+iris.duplicated(keep=False)  # 중복값 모두 
+iris.duplicated(keep='last', subset=['petal_length', 'species'])
 
+iris.drop_duplicates()
 
-# unique 행들
-iris_distict = iris.drop_duplicates()
-
-iris.duplicated()
-iris.duplicated(subset=['sepal_length'])
 # 중복 행 갯수
 iris.duplicated().sum()
 # 중복 행 찾기 
-iris[iris.duplicated()]
+iris[iris.duplicated(keep=False)]
 
 iris.loc[[9,   34, 37]]
 iris.loc[[101, 142]]
@@ -26,42 +26,65 @@ a.drop_duplicates()
 # 5     3
 # 6     4
 # 10    5
-import numpy as np
+
 # 원하는 값은
-# 1 2 3 4 5 1 2 3  또는  1 1 2 2 3 4 4 5 5 1 1 2 2 3
-df = pd.DataFrame.from_dict(
-        {'measurement_id': np.repeat([1, 2], [6, 6]),
-         'min': np.concatenate([np.repeat([1, 2, 3], [2, 2, 2]), 
-                                np.repeat([1, 2, 3], [2, 2, 2])]),
-         'obj': list('AB' * 6),
-         'var': [1, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 1]})
-df['rleid_output'] = [1, 1, 2, 1, 3, 2, 4, 3, 4, 3, 5, 3]
-df['expected_output'] = [1, 2, 1, 2, 1, 1, 2, 3, 2, 3, 1, 3]
+# 1 2 3 4 5 1 2 3  또는  
+# 1 1 2 2 3 4 4 5 5 1 1 2 2 3
+def rleid(seq):
+    char = "sixx"
+    group = 0
+    result = []
+    for i in range(0, len(seq)):
+        if seq[i] == char:
+            result.append(group)
+        else:
+            group = group + 1
+            result.append(group)
+            char = seq[i]
+    return result
+
+rleid(a)
+
+seq = 'KACCCBBBBBAAAAFFFFFFFF'
+seq= [1,1,1,2,3,3,1,2,2,2]
+rleid(seq)
+
+df = pd.DataFrame({
+    'grp' : ["a","a","c","c","c","b","b","a","a"],
+    'value' : range(1,10)
+})
+df['group_id'] = rleid(df['grp'])
+df.groupby(['group_id']).sum()
+# 	    grp	value	group_id
+# 0	    a	1	    1
+# 1	    a	2	    1
+# 2	    c	3	    2
+# 3	    c	4	    2
+# 4	    c	5	    2
+# 5	    b	6	    3
+# 6	    b	7	    3
+# 7	    a	8	    4
+# 8	    a	9	    4
 
 
-#-----
+#   df['group_id'].duplicated()
+# ~(df['group_id'].duplicated())
+df[~(df['group_id'].duplicated())]
+df[~(df['group_id'].duplicated(keep='first'))]
+df[~(df['group_id'].duplicated(keep='last'))]
 
-df['grouper'] = (df.groupby(['measurement_id', 'obj', 'var'])['min']
-                 .apply(lambda x: x.diff().fillna(1).eq(1))
-                 )
+dfdup = df[~(df['group_id'].duplicated(keep='first')) | ~(df['group_id'].duplicated(keep='last'))]
 
-df['expected_output'] = (
-    df.groupby(['measurement_id', 'obj', 'var'])[
-        'grouper'].transform('sum').astype(int)
-)
+import plotly.graph_objects as go
 
-df = df.drop(columns='grouper')
+trace1 = go.Scatter(x=df.index, y=df.group_id, text=df.grp)
+layout = go.Layout(title="Before")
+fig = go.Figure(data=trace1, layout=layout)
+fig.show()
 
-#     measurement_id  min obj  var  expected_output
-# 0                1    1   A    1                1
-# 1                1    1   B    2                2
-# 2                1    2   A    2                1
-# 3                1    2   B    2                2
-# 4                1    3   A    1                1
-# 5                1    3   B    1                1
-# 6                2    1   A    2                2
-# 7                2    1   B    1                3
-# 8                2    2   A    2                2
-# 9                2    2   B    1                3
-# 10               2    3   A    1                1
-# 11               2    3   B    1                3
+trace2 = go.Scatter(x=dfdup.index, y=dfdup.group_id)
+layout = go.Layout(title="After")
+fig = go.Figure(data=trace2, layout=layout)
+fig.show()
+
+
